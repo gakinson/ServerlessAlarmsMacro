@@ -1,0 +1,54 @@
+# Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: |
+  Template for cloudwatch-alert-macro
+
+Resources:
+  AlarmMacro:
+   Type: AWS::CloudFormation::Macro
+   Properties:
+     Name: ServerlessAlarmsMacro
+     FunctionName: !GetAtt ServerlessAlarmsMacroFunction.Arn
+     LogGroupName: ServerlessAlarmsMacro
+     LogRoleARN: arn:aws:iam::633338255596:role/ServerlessAlarmsMacro-ServerlessAlarmsMacroFunctio-4MT5TES9MSCY
+
+
+  ServerlessAlarmsMacroFunction:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      FunctionName: "ServerlessAlarmsMacroFunction"
+      Description: "Lambda Function for Alarm macro that appends alarms to specified resources in cloudformation templates"
+      Handler: "alarm_macro.handler"
+      MemorySize: 128
+      Runtime: "python3.7"
+      Timeout: 60
+      CodeUri: ./src
+      Environment:
+        Variables:
+          BUCKET:
+            Ref: ServerlessAlarmsMacroCloudFormationStackBucket
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            Effect: Allow
+            Action: s3:PutObject
+            Resource:
+              Fn::Sub:
+                - arn:aws:s3:::${BucketName}/*
+                - BucketName:
+                    Ref: ServerlessAlarmsMacroCloudFormationStackBucket
+        - Statement:
+            Effect: Allow
+            Action: s3:GetBucketLocation
+            Resource:
+              Fn::Sub:
+                - arn:aws:s3:::${BucketName}
+                - BucketName:
+                    Ref: ServerlessAlarmsMacroCloudFormationStackBucket
+
+  ServerlessAlarmsMacroCloudFormationStackBucket:
+    Type: AWS::S3::Bucket
+    Properties: {}
