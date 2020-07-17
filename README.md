@@ -9,7 +9,6 @@ Lambda, and Dynamo DB
 |Service | Alarm   | Description  |
 |---|---|---|
 |Lambda  |  Errors | The number of invocations that failed due to errors in the function (response code 4XX)  |
-|Lambda  |  Invocations |  The number of times a function is invoked in response to an event or invocation API call |
 |Dynamo DB |  ConsumedReadCapacityUnits | When 80% of read capacity units have been reached (Works only on provisioned throughput)  |
 |Dynamo DB  | ConsumedWriteCapacityUnits  |  When 80% of write capacity units have been reached (Works only on provisioned throughput) |
 

@@ -11,16 +11,7 @@ def create_alarms_from_fragment(resource, monitoring_topic, resource_json):
                                                       {"Name": 'FunctionName', "Value": {"Ref": f'{resource}'}}],
                                                   'Namespace': 'AWS/Lambda', 'Period': '60',
                                                   'Statistic': 'Sum', 'Threshold': 0, 'Unit': 'Count'}, resource_json)
-    lambda_invocations_count = AlarmCreator.create_alarm(resource, monitoring_topic,
-                                              {'AlarmName': 'Invocations', 'MetricName': 'Invocations',
-                                               'EvaluationPeriods': '1',
-                                               'ComparisonOperator': 'GreaterThanThreshold',
-                                               "Dimensions": [{"Name": 'FunctionName',"Value": {"Ref": f'{resource}'}}],
-                                               'Namespace': 'AWS/Lambda', 'Period': '60',
-                                               'Statistic': 'Sum', 'Threshold': 0,
-                                               'Unit': 'Count'},resource_json)
 
-    lambda_dict.update(lambda_invocations_count)
     lambda_dict.update(lambda_4xx_count)
     return {
         "resources": lambda_dict,
