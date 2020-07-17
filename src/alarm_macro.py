@@ -10,6 +10,7 @@ import LambdaAlarm, DynamoAlarm
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 SNS_TOPIC_PARAM = 'AlarmsSNSArn'
+DISABLE_ALARMS_PARAM = 'AlarmsDisabled'
 s3 = boto3.client("s3")
 
 
@@ -17,7 +18,14 @@ def handler(event, context):
     try:
         fragment = event["fragment"]
         parameters = event['templateParameterValues']
-        # monitoring_topic = 'ServerlessAlarmMacroSnsTopic'
+        if DISABLE_ALARMS_PARAM in parameters and parameters[DISABLE_ALARMS_PARAM]:
+            resp = {
+                'requestId': event['requestId'],
+                'status': 'success',
+                'fragment': fragment
+            }
+            return resp
+
         if SNS_TOPIC_PARAM in parameters:
             monitoring_topic_arn = parameters[SNS_TOPIC_PARAM]
         else:
@@ -52,16 +60,19 @@ def handler(event, context):
             logger.info('Searching {} for resource type'.format(resource))
             resource_json = resources[resource]
             try:
-                if resource_json['Type'] == 'AWS::Lambda::Function' or resource_json['Type'] == 'AWS::Serverless::Function':
+                if resource_json['Type'] == 'AWS::Lambda::Function' or resource_json[
+                    'Type'] == 'AWS::Serverless::Function':
                     logger.info('Resource {} is a lambda function'.format(resource))
-                    lambda_alarm_resources = LambdaAlarm.create_alarms_from_fragment(resource, "TopicArn", resource_json)
+                    lambda_alarm_resources = LambdaAlarm.create_alarms_from_fragment(resource, "TopicArn",
+                                                                                     resource_json)
                     lambda_alarm_dictionary.update(lambda_alarm_resources['resources'])
                     lambda_stack_params.update(lambda_alarm_resources['stack_params'])
                     lambda_stack_values.update(lambda_alarm_resources['stack_values'])
 
                 elif resource_json['Type'] == 'AWS::DynamoDB::Table':
                     logger.info('Resource {} is a dynamo table'.format(resource))
-                    dynamo_alarm_resources = DynamoAlarm.create_alarms_from_fragment(resource, "TopicArn", resource_json)
+                    dynamo_alarm_resources = DynamoAlarm.create_alarms_from_fragment(resource, "TopicArn",
+                                                                                     resource_json)
                     dynamo_alarm_dictionary.update(dynamo_alarm_resources['resources'])
                     dynamo_stack_params.update(dynamo_alarm_resources['stack_params'])
                     dynamo_stack_values.update(dynamo_alarm_resources['stack_values'])
@@ -94,12 +105,14 @@ def handler(event, context):
 
         if len(lambda_alarm_dictionary) > 0:
             lambda_nested_stack = {
-                "ServerlessAlarmsMacroLambdaStack": create_nested_stack(lambda_alarm_dictionary, lambda_stack_params, lambda_stack_values)
+                "ServerlessAlarmsMacroLambdaStack": create_nested_stack(lambda_alarm_dictionary, lambda_stack_params,
+                                                                        lambda_stack_values)
             }
             resources.update(lambda_nested_stack)
         if len(dynamo_alarm_dictionary) > 0:
             dynamo_nested_stack = {
-                "ServerlessAlarmsMacroDynamoStack": create_nested_stack(dynamo_alarm_dictionary, dynamo_stack_params, dynamo_stack_values)
+                "ServerlessAlarmsMacroDynamoStack": create_nested_stack(dynamo_alarm_dictionary, dynamo_stack_params,
+                                                                        dynamo_stack_values)
             }
             resources.update(dynamo_nested_stack)
 
