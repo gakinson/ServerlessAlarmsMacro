@@ -63,7 +63,7 @@ want any alarms on your test or beta stages. Do disable, add the following param
         AllowedValues:
           - true
           - false
-        Default: "false,
+        Default: false,
         Type: String
         Description: Disable creation of alarms in the ServerlessAlarmMacro
 ```
