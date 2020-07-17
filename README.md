@@ -34,7 +34,9 @@ Transform: ServerlessAlarmMacro
 
 If you are deploying a serverless template please ensure you list this macro after the serverless transform
 ```yaml
-Transform: ["AWS::Serverless-2016-10-31", "AlarmMacro"]
+Transform: 
+  - AWS::Serverless-2016-10-31
+  - ServerlessAlarmMacro
 ```
 
 ## Required Params
@@ -51,6 +53,20 @@ the following parameter is required in your template.
 
 You can change this by passing it into your cloudformation changeset creation 
 if you want to have different topics for different stages.
+
+## Additional Params
+
+If you want to disable the creation of the alarms, a use case would be if you did not
+want any alarms on your test or beta stages. Do disable, add the following param on your template:
+```yaml
+    AlarmsDisabled:
+        AllowedValues:
+          - true
+          - false
+        Default: "false,
+        Type: String
+        Description: Disable creation of alarms in the ServerlessAlarmMacro
+```
 
 ## Future Work
 I will progressively start adding more types of resources and allow a configureable template

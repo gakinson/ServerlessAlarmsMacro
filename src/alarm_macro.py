@@ -18,7 +18,7 @@ def handler(event, context):
     try:
         fragment = event["fragment"]
         parameters = event['templateParameterValues']
-        if DISABLE_ALARMS_PARAM in parameters and parameters[DISABLE_ALARMS_PARAM]:
+        if DISABLE_ALARMS_PARAM in parameters and parameters[DISABLE_ALARMS_PARAM] == "true":
             resp = {
                 'requestId': event['requestId'],
                 'status': 'success',
