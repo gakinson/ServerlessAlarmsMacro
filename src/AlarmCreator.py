@@ -39,7 +39,8 @@ def create_alarm(resource,monitoring_topic,alarm,resource_json):
             "Period": f'{alarm["Period"]}',
             "Statistic": f'{alarm["Statistic"]}',
             "Threshold": f'{alarm["Threshold"]}',
-            "Unit": f'{alarm["Unit"]}'
+            "Unit": f'{alarm["Unit"]}',
+            "TreatMissingData": "notBreaching"
         }
     }}
     if 'DatapointsToAlarm' in alarm:
